@@ -38,10 +38,9 @@ void every100ms()
 	buttonState1 = digitalRead(BTN_1);
 	buttonState2 = digitalRead(BTN_2);
 
-	// detektera knapptryck (HIGH → LOW eftersom INPUT_PULLUP)
 	if (lastButton2State == HIGH && buttonState2 == LOW)
 	{
-		LEDG_state = !LEDG_state; // toggle
+		LEDG_state = !LEDG_state;
 		digitalWrite(LEDG, LEDG_state);
 
 		button2Presses++;
@@ -49,7 +48,7 @@ void every100ms()
 		Serial.println(msg);
 	}
 
-	lastButton2State = buttonState2; // VIKTIGT: uppdateras här
+	lastButton2State = buttonState2;
 }
 
 void every1s()
