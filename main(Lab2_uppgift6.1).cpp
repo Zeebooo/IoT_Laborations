@@ -41,7 +41,7 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 		if (mqttClient.connect("esp32-client"))
 		{ 
 			Serial.println("MQTT connected");
-			mqttClient.subscribe("LEDBroker");
+			mqttClient.subscribe("zzzzz");
 		}
 		else
 		{
