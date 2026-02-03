@@ -10,8 +10,13 @@ char msg[MSG_BUFLEN];
 #define LEDR 14
 #define BUZ 32
 
+uint32_t next_time1s = 1000;
+uint32_t next_time500ms = 500;
+
 float tempLimit = 30;
 int miliVolt = 0;
+bool printFlag = false;
+float tempC = 0.0;
 
 void setup()
 {
@@ -20,12 +25,28 @@ void setup()
 	Serial.begin(115200);
 	pinMode(PotPIN, INPUT);
 	pinMode(LEDR, OUTPUT);
-	ledcAttach(BUZ, 2000, 8);
+	ledcAttach(BUZ, 500, 8);
 }
 
-void loop()
+void every1s()
 {
-	// put your main code here, to run repeatedly:
+	if (printFlag)
+	{
+		digitalWrite(LEDR, LOW);
+		snprintf(msg, MSG_BUFLEN, "Temperature: %.2f C, Limit: %.2f °C, HOT HOT HOT!!!!!\n", tempC, tempLimit);
+		printFlag = false;
+	}
+	else
+	{
+		snprintf(msg, MSG_BUFLEN, "Temperature: %.2f C, Limit: %.2f C\n", tempC, tempLimit);
+	}
+
+	Serial.print(msg);
+}
+
+void every100ms()
+{
+	// Nothing to do here for now
 	Wire.beginTransmission(MCP9808_I2CADDR);
 
 	Wire.write(MCP9808_REG_AMBIENT_TEMP);
@@ -39,7 +60,7 @@ void loop()
 		uint8_t byte2 = Wire.read();
 		uint16_t t = (byte1 << 8) | byte2;
 		t = t & 0x0fff;
-		float tempC = t / 16.0;
+		tempC = t / 16.0;
 
 		tempLimit = map(miliVolt, 0, 3300, 20, 40);
 
@@ -47,22 +68,32 @@ void loop()
 		{
 			ledcWrite(BUZ, 128);
 			digitalWrite(LEDR, HIGH);
-			delay(1000);
-			digitalWrite(LEDR, LOW);
-			snprintf(msg, MSG_BUFLEN, "Temperature: %.2f C, Limit: %.2f °C, HOTHOTHOT!!!!!\n", tempC, tempLimit);
+			printFlag = true;
 		}
 		else
 		{
 			digitalWrite(LEDR, LOW);
 			ledcWrite(BUZ, 0);
-			snprintf(msg, MSG_BUFLEN, "Temperature: %.2f C, Limit: %.2f C\n", tempC, tempLimit);
 		}
-
-		Serial.print(msg);
-		delay(1000);
 	}
 	else
 	{
 		Serial.println("error reading from temperature sensor");
+	}
+}
+
+void loop()
+{
+	// put your main code here, to run repeatedly:
+	uint32_t time = millis();
+	if (time >= next_time500ms)
+	{
+		next_time500ms += 500;
+		every100ms();
+	}
+	if (time >= next_time1s)
+	{
+		next_time1s += 1000;
+		every1s();
 	}
 }
