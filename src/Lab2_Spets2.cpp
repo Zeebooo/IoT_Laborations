@@ -76,7 +76,7 @@ void every100ms()
 {
 	int buttonState = digitalRead(BTN);
 
-	if(buttonState == LOW && !activated)
+	if (buttonState == LOW && !activated)
 	{
 		activated = true;
 		timer = 10;
@@ -86,14 +86,14 @@ void every100ms()
 
 void every1s()
 {
-	if(activated)
+	if (activated)
 	{
 		timer--;
 		Serial.print("Buzzer active for ");
 		Serial.print(timer);
 		Serial.println(" more seconds");
 
-		if(timer <= 0)
+		if (timer <= 0)
 		{
 			activated = false;
 			noTone(BUZ);
@@ -134,7 +134,7 @@ void loop()
 		mqttClient.loop();
 		every100ms();
 	}
-	if(time >= next_time_1s)
+	if (time >= next_time_1s)
 	{
 		next_time_1s += 1000;
 		every1s();
